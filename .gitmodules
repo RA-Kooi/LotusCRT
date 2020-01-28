@@ -1,0 +1,3 @@
+[submodule "ThirdParty/processhacker"]
+	path = LotusCRT/external/processhacker
+	url = git@github.com:processhacker/processhacker.git
