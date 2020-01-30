@@ -1,0 +1,19 @@
+# Visual Studio
+**/Debug
+**/Release
+**/packages
+**/.vs
+
+*.user
+*.suo
+
+# vim
+*.swp
+
+# Waf
+*.pyc
+.lock-waf*
+**/waf3*
+**/.waf3*
+**/build
+**/__pycache__
