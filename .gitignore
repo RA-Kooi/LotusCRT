@@ -9,6 +9,7 @@
 
 # vim
 *.swp
+*.cache
 
 # Waf
 *.pyc
