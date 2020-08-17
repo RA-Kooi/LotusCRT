@@ -1,0 +1,56 @@
+#!/usr/bin/env python3
+# encoding: utf-8
+# vim: sw=4 ts=4 noexpandtab
+
+def configure(cfg):
+	cfg.env.CFLAGS_LotusCRTFlags = \
+		[
+			'/Zp8', # Pack structs to an 8 byte boundary
+			'/GS-'
+		]
+	cfg.env.CXXFLAGS_LotusCRTFlags = cfg.env.CFLAGS_LotusCRTFlags
+
+	cfg.check_lib_msvc(libname='ntdll', uselib_store='ntdll')
+	cfg.env.SYSINCLUDES_phnt = ['../external/processhacker/phnt/include']
+	cfg.env.DEFINES_phnt = \
+		[
+			'PHNT_MODE=1', # Kernel mode
+			'PHNT_VERSION=61' # Win7
+		]
+#enddef
+
+def build(bld):
+	bld.stlib(
+		name='LotusCRT',
+		source=
+			[
+				'src/windows/entry_main.cpp',
+				'src/windows/entry_wmain.cpp'
+			],
+		target='LotusCRT',
+		vnum='0.0.0',
+		defines=
+			[
+				'NTDDI_VERSION=0x06010000', # Win7
+				'_CRTBLD',
+				'_MBCS',
+				'_MT',
+				'_RTC', # build support for /RTC
+				'_WIN32_WINDOWS=0x0601', # Win7
+				'_WIN32_WINNT=0x0601' # win7
+			],
+		includes= \
+			[
+				'include'
+			],
+		lib=[],
+		libpath=[],
+		stlib=[],
+		stlibpath=[],
+		rpath=[],
+		use=[],
+		uselib=['LotusCRTFlags', 'phnt', 'MSVC'],
+		features=[],
+		export_system_includes=['include'],
+		export_defines=['_MBCS', '_MT'])
+#enddef
