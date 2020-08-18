@@ -156,4 +156,25 @@ __LOTUSCRT_SYSTEM_HEADER
 	#define __LOTUSCRT_FALLTHROUGH
 #endif
 
+// __LOTUSCRT_DECLARE_SECTION(name, ...)
+#if defined(__LOTUSCRT_COMPILER_MSVC)
+	#ifdef __LOTUSCRT_COMPILER_MSVC_CLANG
+		#define __LOTUSCRT_DECLARE_SECTION(name, ...) \
+			_Pragma( \
+				__LOTUSCRT_STRINGIZE(section(#name, __VA_ARGS__)))
+	#else
+		#define __LOTUSCRT_DECLARE_SECTION(name, ...) \
+			__pragma section(#name, __VA_ARGS__)
+	#endif
+#else
+	#define __LOTUSCRT_DECLARE_SECTION(name, ...)
+#endif
+
+// __LOTUSCRT_SECTION
+#if defined(__LOTUSCRT_COMPILER_MSVC)
+	#define __LOTUSCRT_SECTION(x) __declspec(allocate(#x))
+#elif defined(__LOTUSCRT_COMPILER_GNULIKE)
+	#define __LOTUSCRT_SECTION(x) __attribute__((section(#x)))
+#endif
+
 #endif // __LOTUSCRT_COMPILER_TRAITS_H__
