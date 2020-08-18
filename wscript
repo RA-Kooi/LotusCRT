@@ -87,6 +87,7 @@ def configure(cfg):
 				'-Wno-c++98-compat-pedantic',
 				'-Wno-main',
 				'-Wno-reserved-id-macro',
+				'-Wno-gnu-include-next',
 				'-m64'
 			]
 	#endif
