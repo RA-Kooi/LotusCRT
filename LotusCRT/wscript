@@ -28,14 +28,15 @@ def build(bld):
 
 	bld.objects(
 		name='LotusCRTAsm',
-		source=[] + x64AsmSources + x86AsmSources)
+		source=['src/windows/gscheck.s'] + x64AsmSources + x86AsmSources)
 
 	bld.stlib(
 		name='LotusCRT',
 		source=
 			[
 				'src/windows/entry_main.cpp',
-				'src/windows/entry_wmain.cpp'
+				'src/windows/entry_wmain.cpp',
+				'src/windows/gs_support.c'
 			],
 		target='LotusCRT',
 		vnum='0.0.0',
@@ -51,7 +52,10 @@ def build(bld):
 			],
 		includes= \
 			[
-				'include'
+				'include',
+				'src/include',
+				'src/include/windows', # For windows.h which wants excpt.h
+				'../LotusStdC/include'
 			],
 		lib=[],
 		libpath=[],

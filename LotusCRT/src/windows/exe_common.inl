@@ -1,5 +1,7 @@
 #include <_lotuscrt.h>
 
+#include "windows/gs_support.h"
+
 extern "C" int __LOTUSCRT_CDECL main(int argc, char **argv, char **envp);
 extern "C" int __LOTUSCRT_CDECL wmain(int argc, wchar_t **argv, wchar_t **envp);
 
@@ -14,5 +16,7 @@ static __LOTUSCRT_FORCE_NOINLINE int _Lotus_common_main_seh()
 
 static inline __LOTUSCRT_FORCE_INLINE int _Lotus_common_main()
 {
+	__security_init_cookie();
+
 	return _Lotus_common_main_seh();
 }

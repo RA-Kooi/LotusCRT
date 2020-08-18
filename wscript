@@ -18,6 +18,11 @@ def configure(cfg):
 	USELIB_VARS['c'].add('SYSINCLUDES')
 	USELIB_VARS['cxx'].add('SYSINCLUDES')
 
+	# TODO: Pass different flags when building 32 bit
+	cfg.load('nasm')
+	asflags = ['-g', 'cv8', '-f', 'win64', '-m', 'amd64']
+	cfg.env.append_value('ASFLAGS', asflags)
+
 	#cfg.load('msvc msvc_pdb')
 	cfg.load('clang_cl clang_compilation_database')
 	cfg.env.cstlib_PATTERN = cfg.env.cxxstlib_PATTERN = 'lib%s.lib'
