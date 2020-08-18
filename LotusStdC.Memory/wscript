@@ -1,0 +1,36 @@
+#!/usr/bin/env python3
+# encoding: utf-8
+# vim: sw=4 ts=4 noexpandtab
+
+def build(bld):
+	bld.stlib(
+		name='LotusStdC.Memory',
+		source=
+			[
+				'src/memset.c'
+			],
+		target='LotusStdC.Memory',
+		vnum='0.0.0',
+		defines=
+			[
+				'NTDDI_VERSION=0x06010000', # Win7
+				'_CRTBLD',
+				'_WIN32_WINDOWS=0x0601', # Win7
+				'_WIN32_WINNT=0x0601' # win7
+			],
+		includes= \
+			[
+				'include',
+				'../LotusCRT/include'
+			],
+		lib=[],
+		libpath=[],
+		stlib=[],
+		stlibpath=[],
+		rpath=[],
+		use=['LotusStdC'],
+		uselib=['LotusCRTFlags', 'MSVC'],
+		features=[],
+		export_system_includes=[],
+		export_defines=[])
+#enddef

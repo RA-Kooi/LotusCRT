@@ -109,6 +109,7 @@ def build(bld):
 	USELIB_VARS['cxx'].add('SYSINCLUDES')
 
 	bld.recurse('LotusCRT')
+	bld.recurse('LotusStdC.Memory')
 #enddef
 
 @feature('c', 'cxx', 'system_includes')
