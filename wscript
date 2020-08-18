@@ -101,6 +101,7 @@ def configure(cfg):
 	cfg.env.LDFLAGS = ['/DEBUG', '/INCREMENTAL:NO', '/WX']
 
 	cfg.recurse('LotusCRT')
+	cfg.recurse('LotusStdC')
 #enddef
 
 def build(bld):
