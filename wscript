@@ -174,6 +174,7 @@ def build(bld):
 
 	bld.recurse('LotusCRT')
 	bld.recurse('LotusStdC.Memory')
+	bld.recurse('tests')
 #enddef
 
 def test(bld):
