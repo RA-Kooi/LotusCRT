@@ -5,7 +5,8 @@
 def configure(cfg):
 	cfg.env.CFLAGS_LotusCRTFlags = \
 		[
-			'/Zp8' # Pack structs to an 8 byte boundary
+			'/Zp8', # Pack structs to an 8 byte boundary
+			'-Wno-dollar-in-identifier-extension'
 		]
 	cfg.env.CXXFLAGS_LotusCRTFlags = cfg.env.CFLAGS_LotusCRTFlags
 
@@ -52,6 +53,7 @@ def build(bld):
 			[
 				'src/windows/entry_main.cpp',
 				'src/windows/entry_wmain.cpp',
+				'src/windows/vc_sections.c',
 				'src/exit.c'
 			],
 		target='LotusCRT',
