@@ -36,7 +36,8 @@ def build(bld):
 			[
 				'src/windows/entry_main.cpp',
 				'src/windows/entry_wmain.cpp',
-				'src/windows/gs_support.c'
+				'src/windows/gs_support.c',
+				'src/exit.c'
 			],
 		target='LotusCRT',
 		vnum='0.0.0',
