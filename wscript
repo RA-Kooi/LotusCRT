@@ -2,21 +2,36 @@
 # encoding: utf-8
 # vim: sw=4 ts=4 noexpandtab
 
+import sysconfig
+
+from waflib import Logs, Options
+from waflib.Build import BuildContext
 from waflib.TaskGen import feature, after_method, before_method
+from waflib.Tools import waf_unit_test
 from waflib.Tools.ccroot import USELIB_VARS
 
 top = '.'
 out = 'build'
 
+run_tests = False
+
 def options(opt):
+	Logs.enable_colors(2)
+
 	#opt.load('msvc')
 	opt.load('clang_cl clang_compilation_database')
+	opt.load('waf_unit_test')
+	opt.parser.remove_option('--alltests')
+	opt.parser.remove_option('--notests')
+	opt.parser.remove_option('--clear-failed')
 
 #enddef
 
 def configure(cfg):
 	USELIB_VARS['c'].add('SYSINCLUDES')
 	USELIB_VARS['cxx'].add('SYSINCLUDES')
+
+	Logs.enable_colors(2)
 
 	# TODO: Pass different flags when building 32 bit
 	cfg.load('nasm')
@@ -109,13 +124,72 @@ def configure(cfg):
 	cfg.recurse('LotusStdC')
 #enddef
 
+def summary(bld):
+	lst = getattr(bld, 'utest_results', [])
+	if lst:
+		total = len(lst)
+		tfail = len([x for x in lst if x[1]])
+
+		val = 100 * (total - tfail) / (1.0 * total)
+		Logs.pprint('CYAN', 'Test report: %3.0f%% success' % val)
+
+		Logs.pprint(
+			'CYAN',
+			'  Tests that succeed: %d/%d' % (total - tfail, total))
+
+		Logs.pprint('CYAN', '  Tests that fail: %d/%d' % (tfail, total))
+
+		for result in lst:
+			if result.exit_code:
+				Logs.pprint(
+					'CYAN',
+					'    %s (%s)' % (result.test_path, result.generator.name))
+
+				Logs.pprint('RED', 'Status: %r' % result.exit_code)
+				if result.out: Logs.pprint('RED', 'out: %r' % result.out)
+				if result.err: Logs.pprint('RED', 'err: %r' % result.err)
+			#endif
+		#endfor
+	#endif
+#enddef
+
 def build(bld):
 	USELIB_VARS['c'].add('SYSINCLUDES')
 	USELIB_VARS['cxx'].add('SYSINCLUDES')
 
+	Logs.enable_colors(2)
+
+	global run_tests
+	if run_tests:
+		bld.options.all_tests = True
+		bld.options.no_tests = False
+	else:
+		bld.options.all_tests = False
+		bld.options.no_tests = True
+	#endif
+
+	bld.options.clear_failed_tests = True
+	bld.add_post_fun(summary)
+	bld.add_post_fun(waf_unit_test.set_exit_code)
+
 	bld.recurse('LotusCRT')
 	bld.recurse('LotusStdC.Memory')
 #enddef
+
+def test(bld):
+	Logs.enable_colors(2)
+
+	global run_tests
+	run_tests = True
+
+	Options.commands = ['build'] + Options.commands
+#enddef
+
+class TestContext(BuildContext):
+	'''Build and execute unit tests'''
+	cmd = 'test'
+	fun = 'test'
+#endclass
 
 @feature('c', 'cxx', 'system_includes')
 @after_method('propagate_uselib_vars', 'process_source', 'apply_incpaths')
