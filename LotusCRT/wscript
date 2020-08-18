@@ -5,8 +5,7 @@
 def configure(cfg):
 	cfg.env.CFLAGS_LotusCRTFlags = \
 		[
-			'/Zp8', # Pack structs to an 8 byte boundary
-			'/GS-'
+			'/Zp8' # Pack structs to an 8 byte boundary
 		]
 	cfg.env.CXXFLAGS_LotusCRTFlags = cfg.env.CFLAGS_LotusCRTFlags
 
@@ -20,6 +19,16 @@ def configure(cfg):
 #enddef
 
 def build(bld):
+	includes = \
+		[
+			'include',
+			'src/include',
+			'src/include/windows', # For windows.h which wants excpt.h
+			'../LotusStdC/include'
+		]
+
+	uselib = ['LotusCRTFlags', 'phnt', 'MSVC']
+
 	x64AsmSources = []
 	x86AsmSources = []
 	if not bld.env.DEST_CPU == 'amd64':
@@ -30,13 +39,19 @@ def build(bld):
 		name='LotusCRTAsm',
 		source=['src/windows/gscheck.s'] + x64AsmSources + x86AsmSources)
 
+	bld.objects(
+		name='LotusCRTGS',
+		includes=includes,
+		source=['src/windows/gs_support.c'],
+		cflags=['/GS-'],
+		uselib=uselib)
+
 	bld.stlib(
 		name='LotusCRT',
 		source=
 			[
 				'src/windows/entry_main.cpp',
 				'src/windows/entry_wmain.cpp',
-				'src/windows/gs_support.c',
 				'src/exit.c'
 			],
 		target='LotusCRT',
@@ -51,20 +66,14 @@ def build(bld):
 				'_WIN32_WINDOWS=0x0601', # Win7
 				'_WIN32_WINNT=0x0601' # win7
 			],
-		includes= \
-			[
-				'include',
-				'src/include',
-				'src/include/windows', # For windows.h which wants excpt.h
-				'../LotusStdC/include'
-			],
+		includes=includes,
 		lib=[],
 		libpath=[],
 		stlib=[],
 		stlibpath=[],
 		rpath=[],
-		use=['LotusCRTAsm'],
-		uselib=['LotusCRTFlags', 'phnt', 'MSVC'],
+		use=['LotusCRTAsm', 'LotusCRTGS'],
+		uselib=uselib,
 		features=[],
 		export_system_includes=['include'],
 		export_defines=['_MBCS', '_MT'])
