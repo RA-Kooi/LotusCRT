@@ -15,6 +15,9 @@ __LOTUSCRT_SYSTEM_HEADER
 extern "C"
 {
 #endif
+__LOTUSCRT_API size_t __LOTUSCRT_CDECL wcslen(wchar_t const *__str);
+__LOTUSCRT_MSVC_INTRINSIC(wcslen)
+
 #ifdef __LOTUSCRT_PLATFORM_WINDOWS
 	__LOTUSCRT_API int __LOTUSCRT_CDECL _wcsicmp(
 		wchar_t const *__lhs,
