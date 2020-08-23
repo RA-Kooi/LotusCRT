@@ -32,6 +32,9 @@ __LOTUSCRT_API void * __LOTUSCRT_CDECL memcpy(
 	void const * __LOTUSCRT_RESTRICT __src,
 	size_t __count);
 __LOTUSCRT_MSVC_INTRINSIC(memcpy)
+
+__LOTUSCRT_API size_t __LOTUSCRT_CDECL strlen(char const *__str);
+__LOTUSCRT_MSVC_INTRINSIC(strlen)
 #ifdef __cplusplus
 }
 #endif
