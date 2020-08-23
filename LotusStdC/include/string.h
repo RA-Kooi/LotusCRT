@@ -7,15 +7,19 @@
 
 __LOTUSCRT_SYSTEM_HEADER
 
+#ifdef __LOTUSCRT_PLATFORM_WINDOWS
+#define __INC_STRING // Windows SDK compat
+#endif
+
 #ifdef __cplusplus
 extern "C"
 {
 #endif
-__LOTUSCRT_MSVC_INTRINSIC(memset)
 __LOTUSCRT_API void * __LOTUSCRT_CDECL memset(
 	void *__dest,
 	int __value,
 	size_t __count);
+__LOTUSCRT_MSVC_INTRINSIC(memset)
 #ifdef __cplusplus
 }
 #endif

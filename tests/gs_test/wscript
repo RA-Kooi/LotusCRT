@@ -5,11 +5,14 @@
 import sys, os
 
 def build(bld):
+	if 'CC_NAME_SECONDARY' in bld.env:
+		bld.env.CFLAGS_GSTestFlags = ['-Wno-array-bounds']
+
 	test = bld.program(
 		name='gs_test',
 		source=['main.c'],
 		target='gs_test',
-		cflags=['-Wno-array-bounds', '/GS'],
+		cflags=['/GS', '/wd4789'],
 		defines=[],
 		includes=[],
 		system_includes=[],
@@ -19,7 +22,7 @@ def build(bld):
 		stlibpath=[],
 		rpath=[],
 		use=['LotusCRT', 'LotusStdC', 'LotusStdC.Memory', 'MSVC'],
-		uselib=[],
+		uselib=['GSTestFlags'],
 		features=['test'],
 		export_system_includes=[],
 		export_defines=[])

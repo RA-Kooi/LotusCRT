@@ -66,7 +66,7 @@ static void _Lotus_memset_AVX(void *__dest, int __value, size_t __count)
 	{
 		__LOTUSCRT_DISABLE_CLANG_WARNING(-Wcast-align)
 		_mm256_storeu_si256(
-			(__m256i_u*)(dest + i),
+			(__m256i*)(dest + i),
 			_mm256_set1_epi8((char)__value));
 		__LOTUSCRT_RESTORE_CLANG_WARNING()
 	}

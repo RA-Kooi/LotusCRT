@@ -2,16 +2,26 @@
 # encoding: utf-8
 # vim: sw=4 ts=4 noexpandtab
 
+import os
+
 def configure(cfg):
 	cfg.env.CFLAGS_LotusCRTFlags = \
 		[
-			'/Zp8', # Pack structs to an 8 byte boundary
-			'-Wno-dollar-in-identifier-extension'
+			'/Zp8' # Pack structs to an 8 byte boundary
 		]
+
+	if 'CC_NAME_SECONDARY' in cfg.env:
+		cfg.env.CFLAGS_LotusCRTFlags += \
+			[
+				'-Wno-dollar-in-identifier-extension',
+				'-Wno-language-extension-token'
+			]
+
 	cfg.env.CXXFLAGS_LotusCRTFlags = cfg.env.CFLAGS_LotusCRTFlags
 
+	# Just check that we have ntdll.lib, _lotuscrt.h will make sure it's linked
 	cfg.check_lib_msvc(libname='ntdll', uselib_store='ntdll')
-	cfg.env.SYSINCLUDES_phnt = ['../external/processhacker/phnt/include']
+	cfg.env.SYSINCLUDES_phnt = [os.path.abspath('external/processhacker/phnt/include')]
 	cfg.env.DEFINES_phnt = \
 		[
 			'PHNT_MODE=1', # Kernel mode

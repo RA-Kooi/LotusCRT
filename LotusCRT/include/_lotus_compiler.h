@@ -57,7 +57,7 @@
 		#ifdef __LOTUSCRT_COMPILER_MSVC_CLANG
 			#define __LOTUSCRT_SYSTEM_HEADER _Pragma("clang system_header")
 		#else
-			#define __LOTUSCRT_SYSTEM_HEADER __pragma system_header
+			#define __LOTUSCRT_SYSTEM_HEADER __pragma(system_header)
 		#endif // __LOTUSCRT_COMPILER_MSVC_CLANG
 	#else // ^ Compilers that support system header annotation | v No support
 		#define __LOTUSCRT_SYSTEM_HEADER

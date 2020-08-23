@@ -118,16 +118,15 @@ __LOTUSCRT_SYSTEM_HEADER
 		#define __LOTUSCRT_MSVC_INTRINSIC(x) \
 			_Pragma(__LOTUSCRT_MSVC_INTRINSIC_HELPER1(x))
 	#else
-		#define __LOTUSCRT_MSVC_INTRINSIC(x) __pragma intrinsic(x)
+		#define __LOTUSCRT_MSVC_INTRINSIC(x) __pragma(intrinsic(x))
 	#endif
 #else
 	#define __LOTUSCRT_MSVC_INTRINSIC(x)
 #endif
 
 // __LOTUSCRT_MSVC_FUNCTION
-#if defined(__LOTUSCRT_COMPILER_MSVC) \
-	&& !defined(__LOTUSCRT_COMPILER_MSVC_CLANG)
-	#define __LOTUSCRT_MSVC_FUNCTION(x) __pragma function(x)
+#if defined(__LOTUSCRT_COMPILER_MSVC_ONLY)
+	#define __LOTUSCRT_MSVC_FUNCTION(x) __pragma(function(x))
 #else
 	#define __LOTUSCRT_MSVC_FUNCTION(x)
 #endif
@@ -164,7 +163,7 @@ __LOTUSCRT_SYSTEM_HEADER
 				__LOTUSCRT_STRINGIZE(section(#name, __VA_ARGS__)))
 	#else
 		#define __LOTUSCRT_DECLARE_SECTION(name, ...) \
-			__pragma section(#name, __VA_ARGS__)
+			__pragma(section(#name, __VA_ARGS__))
 	#endif
 #else
 	#define __LOTUSCRT_DECLARE_SECTION(name, ...)

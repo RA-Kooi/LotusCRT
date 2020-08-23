@@ -76,6 +76,7 @@ def configure(cfg):
 			#'/arch:SSE2', # Enable SSE2 codegen
 			'/permissive-', # Enable standard conformance mode
 			'/volatile:iso', # Disable volatile as atomic
+			'/wd5045', # Disable if /Qspectre
 			'/Od',
 			'/Ob0'
 		]
