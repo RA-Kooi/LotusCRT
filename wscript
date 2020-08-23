@@ -179,6 +179,8 @@ def configure(cfg):
 		release_flags += ['-GL']
 		debug_flags += ['-GL-']
 		cfg.env.append_value('LDFLAGS', '/LTCG')
+	else:
+		release_flags += ['-Xclang', '-O3']
 	#endif
 
 	cfg.env.append_value('CFLAGS', release_flags)
