@@ -73,7 +73,7 @@ def build(bld):
 				'src/windows/entry_wmain.cpp',
 				'src/windows/vc_sections.c',
 				'src/windows/seh_filters.c',
-				'src/exit.c'
+				'src/_Exit.c'
 			] + x64Sources + x86Sources,
 		target='LotusCRT',
 		vnum='0.0.0',
