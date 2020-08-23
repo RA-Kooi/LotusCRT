@@ -6,7 +6,7 @@ import sys, os
 
 def build(bld):
 	if 'CC_NAME_SECONDARY' in bld.env:
-		bld.env.CFLAGS_GSTestFlags = ['-Wno-array-bounds']
+		bld.env.CFLAGS_GSTestFlags = ['-Wno-fortify-source']
 
 	test = bld.program(
 		name='gs_test',
