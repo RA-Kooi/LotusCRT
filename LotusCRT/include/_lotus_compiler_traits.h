@@ -176,4 +176,11 @@ __LOTUSCRT_SYSTEM_HEADER
 	#define __LOTUSCRT_SECTION(x) __attribute__((section(#x)))
 #endif
 
+// __LOTUSCRT_RESTRICT
+#if defined(__LOTUSCRT_COMPILER_MSVC) || defined(__LOTUSCRT_COMPILER_GNULIKE)
+	#define __LOTUSCRT_RESTRICT __restrict
+#else
+	#define __LOTUSCRT_RESTRICT
+#endif
+
 #endif // __LOTUSCRT_COMPILER_TRAITS_H__

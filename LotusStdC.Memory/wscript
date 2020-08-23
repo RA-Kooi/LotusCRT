@@ -8,6 +8,7 @@ def build(bld):
 		source=
 			[
 				'src/memcmp.c',
+				'src/memcpy.c',
 				'src/memset.c'
 			],
 		target='LotusStdC.Memory',
