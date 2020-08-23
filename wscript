@@ -20,11 +20,18 @@ def options(opt):
 
 	#opt.load('msvc')
 	opt.load('clang_cl')
-	opt.load('clang_compilation_database waf_unit_test')
+	opt.load('clang_compilation_database')
+	opt.load('waf_unit_test')
 	opt.parser.remove_option('--alltests')
 	opt.parser.remove_option('--notests')
 	opt.parser.remove_option('--clear-failed')
 
+	opt.add_option(
+		'--clangdb-release',
+		action='store_true',
+		dest='clangdb_conf',
+		default=False,
+		help="Use release flags in the clang compilation database.")
 #enddef
 
 def configure(cfg):
@@ -33,6 +40,7 @@ def configure(cfg):
 
 	Logs.enable_colors(2)
 
+	cfg.setenv('debug')
 	#cfg.load('msvc msvc_pdb')
 	cfg.load('clang_cl')
 	cfg.load('clang_compilation_database')
@@ -48,7 +56,6 @@ def configure(cfg):
 
 	asflags = ['-g', 'cv8'] + as_platform
 	cfg.env.append_value('ASFLAGS', asflags)
-
 
 	def keep_winsdk(cur):
 		return not (
@@ -76,9 +83,7 @@ def configure(cfg):
 			#'/arch:SSE2', # Enable SSE2 codegen
 			'/permissive-', # Enable standard conformance mode
 			'/volatile:iso', # Disable volatile as atomic
-			'/wd5045', # Disable if /Qspectre
-			'/Od',
-			'/Ob0'
+			'/wd5045' # Disable if /Qspectre
 		]
 
 	if not ('CC_NAME_SECONDARY' in cfg.env):
@@ -116,6 +121,7 @@ def configure(cfg):
 			'/Zc:rvalueCast',
 			'/Zc:strictStrings',
 			'/Zc:threadSafeInit',
+			'/EHsc'
 		])
 
 	if 'CC_NAME_SECONDARY' in cfg.env:
@@ -136,6 +142,45 @@ def configure(cfg):
 
 	cfg.recurse('LotusCRT')
 	cfg.recurse('LotusStdC')
+
+	cfg.setenv('release', env=cfg.env.derive())
+	release_flags = \
+		[
+			'-O2',
+			'-Ob2',
+			'-Oi',
+			'-Ot',
+			'-Oy',
+			'-Gy',
+			'-fp:fast',
+			'-wd4711' # Function selected for automatic inline expansion
+		]
+
+	debug_flags = \
+		[
+			'-Od',
+			'-Ob0',
+			'-Oi',
+			'-Oy-',
+			'-Gy-',
+			'-fp:precise'
+		]
+
+	if not 'CC_NAME_SECONDARY' in cfg.env:
+		release_flags += ['-GL']
+		debug_flags += ['-GL-']
+		cfg.env.append_value('LDFLAGS', '/LTCG')
+	#endif
+
+	cfg.env.append_value('CFLAGS', release_flags)
+	cfg.env.append_value('CXXFLAGS', release_flags)
+	cfg.env.append_value('DEFINES', '__LOTUSCRT_RELEASE')
+	cfg.env.append_value('LDFLAGS', '/OPT:REF,ICF')
+
+	cfg.setenv('debug')
+	cfg.env.append_value('CFLAGS', debug_flags)
+	cfg.env.append_value('CXXFLAGS', debug_flags)
+	cfg.env.append_value('DEFINES', '__LOTUSCRT_DEBUG')
 #enddef
 
 def summary(bld):
@@ -173,6 +218,18 @@ def build(bld):
 
 	Logs.enable_colors(2)
 
+	if not bld.variant:
+		if not bld.cmd == 'clangdb' and not bld.cmd == 'clean':
+			Options.commands.insert(0, 'build_release')
+			Options.commands.insert(0, 'build_debug')
+			return
+		else:
+			# Clang compilation database module does not play nice with variants.
+			# Set the variant to debug, or release by user override.
+			bld.variant = 'release' if bld.options.clangdb_conf else 'debug'
+		#endif
+	#endif
+
 	global run_tests
 	if run_tests:
 		bld.options.all_tests = True
@@ -206,6 +263,28 @@ class TestContext(BuildContext):
 	cmd = 'test'
 	fun = 'test'
 #endclass
+
+def init(ctx):
+	from waflib.Build import BuildContext, CleanContext, InstallContext
+	from waflib.Build import UninstallContext
+
+	for x in 'debug release'.split():
+		for y in (
+			TestContext,
+			BuildContext,
+			CleanContext,
+			InstallContext,
+			UninstallContext):
+
+			name = y.__name__.replace('Context', '').lower()
+
+			class tmp(y):
+				cmd = name + '_' + x
+				variant = x
+			#endclass
+		#endfor
+	#endfor
+#enddef
 
 @feature('c', 'cxx', 'system_includes')
 @after_method('propagate_uselib_vars', 'process_source', 'apply_incpaths')
