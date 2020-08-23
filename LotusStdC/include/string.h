@@ -20,6 +20,12 @@ __LOTUSCRT_API void * __LOTUSCRT_CDECL memset(
 	int __value,
 	size_t __count);
 __LOTUSCRT_MSVC_INTRINSIC(memset)
+
+__LOTUSCRT_API int __LOTUSCRT_CDECL memcmp(
+	void const *__lhs,
+	void const *__rhs,
+	size_t __count);
+__LOTUSCRT_MSVC_INTRINSIC(memcmp)
 #ifdef __cplusplus
 }
 #endif

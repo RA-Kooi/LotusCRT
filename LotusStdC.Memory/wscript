@@ -7,6 +7,7 @@ def build(bld):
 		name='LotusStdC.Memory',
 		source=
 			[
+				'src/memcmp.c',
 				'src/memset.c'
 			],
 		target='LotusStdC.Memory',
