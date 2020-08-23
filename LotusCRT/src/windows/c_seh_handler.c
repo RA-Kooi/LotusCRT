@@ -5,6 +5,7 @@
 
 // C specific SEH exception handler
 // x64 only
+// See c_seh_handler4.c for x86
 
 // A function that seems to notify the debugger or something, idk
 extern void _NLG_Notify(

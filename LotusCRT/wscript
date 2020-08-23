@@ -43,10 +43,12 @@ def build(bld):
 	x64AsmSources = ['src/windows/gs_handler.s']
 	x86AsmSources = []
 	x64Sources = ['src/windows/c_seh_handler.c']
+	x86Sources = []
 	if not bld.env.DEST_CPU == 'amd64':
 		x64AsmSources = []
-		x86AsmSources = ['src/windows/64bit_shift.s']
+		x86AsmSources = ['src/windows/64bit_shift.s', 'src/windows/c_seh_handler4.s']
 		x64Sources = []
+		x86Sources = ['src/windows/c_seh_handler4.c']
 
 	bld.objects(
 		name='LotusCRTAsm',
@@ -72,7 +74,7 @@ def build(bld):
 				'src/windows/vc_sections.c',
 				'src/windows/seh_filters.c',
 				'src/exit.c'
-			] + x64Sources,
+			] + x64Sources + x86Sources,
 		target='LotusCRT',
 		vnum='0.0.0',
 		defines=
