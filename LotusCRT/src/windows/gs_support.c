@@ -101,7 +101,88 @@ __LOTUSCRT_NORETURN void __LOTUSCRT_CDECL __report_gsfailure(
 	ULONG_PTR __stackCookie)
 {
 	volatile UINT_PTR cookie[2];
-	(void)cookie;
+
+#ifdef __LOTUSCRT_PLATFORM_WIN32
+	BYTE volatile dummyStack[(sizeof(CONTEXT) + sizeof(EXCEPTION_RECORD))];
+	__LOTUSCRT_UNUSED(dummyStack);
+
+#ifndef __LOTUSCRT_COMPILER_MSVC
+	__asm__(
+		// Capture general registers
+		"movl %%eax, %0\n"
+		"\tmovl %%ecx, %1\n"
+		"\tmovl %%edx, %2\n"
+		"\tmovl %%ebx, %3\n"
+		"\tmovl %%esi, %4\n"
+		"\tmovl %%edi, %5\n"
+		"\tmovw %%ss, %6\n"
+		"\tmovw %%cs, %7\n"
+		"\tmovw %%ds, %8\n"
+		"\tmovw %%es, %9\n"
+		"\tmovw %%fs, %10\n"
+		"\tmovw %%gs, %11\n"
+		"\tpushfd\n"
+		"\tpop %12\n"
+
+		// Capture caller stack registers
+		"\tmovl (%%ebp), %%eax\n"
+		"\tmovl %%eax, %13\n"
+		"\tmovl 4(%%ebp), %%eax\n"
+		"\tmovl %%eax, %14\n"
+		"\tlea 8(%%ebp), %%eax\n"
+		"\tmovl %%eax, %15\n"
+
+		// Reference dummy stack
+		"\tmovl %16, %%eax"
+		: "=m"(GS_ContextRecord.Eax),
+		"=m"(GS_ContextRecord.Ecx),
+		"=m"(GS_ContextRecord.Edx),
+		"=m"(GS_ContextRecord.Ebx),
+		"=m"(GS_ContextRecord.Esi),
+		"=m"(GS_ContextRecord.Edi),
+		"=m"(GS_ContextRecord.SegSs),
+		"=m"(GS_ContextRecord.SegCs),
+		"=m"(GS_ContextRecord.SegDs),
+		"=m"(GS_ContextRecord.SegEs),
+		"=m"(GS_ContextRecord.SegFs),
+		"=m"(GS_ContextRecord.SegGs),
+		"=m"(GS_ContextRecord.EFlags),
+		"=m"(GS_ContextRecord.Ebp),
+		"=m"(GS_ContextRecord.Eip),
+		"=m"(GS_ContextRecord.Esp)
+		: "m"(dummyStack) : "eax");
+#else
+	__asm
+	{
+		// Capture general registers
+		mov dword ptr[GS_ContextRecord.Eax], eax
+		mov dword ptr[GS_ContextRecord.Ecx], ecx
+		mov dword ptr[GS_ContextRecord.Edx], edx
+		mov dword ptr[GS_ContextRecord.Ebx], ebx
+		mov dword ptr[GS_ContextRecord.Esi], esi
+		mov dword ptr[GS_ContextRecord.Edi], edi
+		mov word ptr[GS_ContextRecord.SegSs], ss
+		mov word ptr[GS_ContextRecord.SegCs], cs
+		mov word ptr[GS_ContextRecord.SegDs], ds
+		mov word ptr[GS_ContextRecord.SegEs], es
+		mov word ptr[GS_ContextRecord.SegFs], fs
+		mov word ptr[GS_ContextRecord.SegGs], gs
+		pushfd
+		pop [GS_ContextRecord.EFlags]
+
+		// Capture caller stack registers
+		mov eax, [ebp]
+		mov dword ptr[GS_ContextRecord.Ebp], eax
+		mov eax, [ebp + 4]
+		mov dword ptr[GS_ContextRecord.Eip], eax
+		lea eax, [ebp + 8]
+		mov dword ptr[GS_ContextRecord.Esp], eax
+
+		// Reference dummy stack
+		mov eax, dword ptr dummyStack
+	}
+#endif
+#endif
 
 #ifdef __LOTUSCRT_PLATFORM_WIN64
 	ULONG64 controlPC, imgBase, establisherFrame;
