@@ -4,3 +4,4 @@
 
 def build(bld):
 	bld.recurse('gs_test')
+	bld.recurse('seh_test')
