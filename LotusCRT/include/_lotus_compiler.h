@@ -40,6 +40,8 @@
 			(__clang_major__ * 100) \
 			+ (__clang_minor__ * 10) \
 			+ (__clang_patchlevel__)
+	#else
+		#define __LOTUSCRT_COMPILER_MSVC_ONLY
 	#endif
 
 	#define __LOTUSCRT_CDECL_SUPPORTED
