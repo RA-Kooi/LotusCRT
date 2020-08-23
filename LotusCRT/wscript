@@ -21,7 +21,7 @@ def configure(cfg):
 
 	# Just check that we have ntdll.lib, _lotuscrt.h will make sure it's linked
 	cfg.check_lib_msvc(libname='ntdll', uselib_store='ntdll')
-	cfg.env.SYSINCLUDES_phnt = [os.path.abspath('external/processhacker/phnt/include')]
+	cfg.env.SYSINCLUDES_phnt = [os.path.abspath('external/phnt')]
 	cfg.env.DEFINES_phnt = \
 		[
 			'PHNT_MODE=1', # Kernel mode

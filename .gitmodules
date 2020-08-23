@@ -1,3 +1,3 @@
-[submodule "ThirdParty/processhacker"]
-	path = external/processhacker
-	url = git@github.com:processhacker/processhacker.git
+[submodule "external/phnt"]
+	path = external/phnt
+	url = https://github.com/processhacker/phnt.git
