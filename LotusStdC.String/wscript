@@ -9,6 +9,7 @@ def build(bld):
 			[
 				'src/windows/_wcsicmp.c',
 				'src/strlen.c',
+				'src/wcscpy.c',
 				'src/wcslen.c'
 			],
 		target='LotusStdC.String',

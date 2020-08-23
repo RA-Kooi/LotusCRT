@@ -18,6 +18,13 @@ extern "C"
 __LOTUSCRT_API size_t __LOTUSCRT_CDECL wcslen(wchar_t const *__str);
 __LOTUSCRT_MSVC_INTRINSIC(wcslen)
 
+__LOTUSCRT_API wchar_t * __LOTUSCRT_CDECL wcscpy(
+	wchar_t * __LOTUSCRT_RESTRICT __dest,
+	wchar_t const * __LOTUSCRT_RESTRICT __src);
+#ifdef __LOTUSCRT_COMPILER_MSVC_ONLY
+__LOTUSCRT_MSVC_INTRINSIC(wcscpy)
+#endif
+
 #ifdef __LOTUSCRT_PLATFORM_WINDOWS
 	__LOTUSCRT_API int __LOTUSCRT_CDECL _wcsicmp(
 		wchar_t const *__lhs,
