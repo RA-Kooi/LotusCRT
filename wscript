@@ -19,8 +19,8 @@ def options(opt):
 	Logs.enable_colors(2)
 
 	#opt.load('msvc')
-	opt.load('clang_cl clang_compilation_database')
-	opt.load('waf_unit_test')
+	opt.load('clang_cl')
+	opt.load('clang_compilation_database waf_unit_test')
 	opt.parser.remove_option('--alltests')
 	opt.parser.remove_option('--notests')
 	opt.parser.remove_option('--clear-failed')
@@ -33,15 +33,22 @@ def configure(cfg):
 
 	Logs.enable_colors(2)
 
-	# TODO: Pass different flags when building 32 bit
-	cfg.load('nasm')
-	asflags = ['-g', 'cv8', '-f', 'win64', '-m', 'amd64']
-	cfg.env.append_value('ASFLAGS', asflags)
-
 	#cfg.load('msvc msvc_pdb')
-	cfg.load('clang_cl clang_compilation_database')
+	cfg.load('clang_cl')
+	cfg.load('clang_compilation_database')
 	cfg.env.cstlib_PATTERN = cfg.env.cxxstlib_PATTERN = 'lib%s.lib'
 	cfg.env.STLIB_ST = 'lib%s.lib'
+
+	cfg.load('nasm')
+	as_platform = ['-f', 'win64', '-m', 'amd64']
+
+	if cfg.env.DEST_CPU == 'x86':
+		as_platform = ['-f', 'win32', '-m', 'x86']
+	#endif
+
+	asflags = ['-g', 'cv8'] + as_platform
+	cfg.env.append_value('ASFLAGS', asflags)
+
 
 	def keep_winsdk(cur):
 		return not (
@@ -87,9 +94,14 @@ def configure(cfg):
 				'-Wno-c++98-compat-pedantic',
 				'-Wno-main',
 				'-Wno-reserved-id-macro',
-				'-Wno-gnu-include-next',
-				'-m64'
+				'-Wno-gnu-include-next'
 			]
+
+		if cfg.env.DEST_CPU == 'amd64':
+			flags += ['-m64']
+		else:
+			flags += ['-m32']
+		#endif
 	#endif
 
 	cfg.env.append_value('CFLAGS', flags)

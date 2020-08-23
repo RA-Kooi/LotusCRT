@@ -30,7 +30,7 @@ def build(bld):
 
 	uselib = ['LotusCRTFlags', 'phnt', 'MSVC']
 
-	x64AsmSources = []
+	x64AsmSources = ['src/windows/gs_handler.s']
 	x86AsmSources = []
 	if not bld.env.DEST_CPU == 'amd64':
 		x64AsmSources = []

@@ -40,6 +40,8 @@
 	#define __LOTUSCRT_PLATFORM_WINDOWS
 	#if defined(_WIN64)
 		#define __LOTUSCRT_PLATFORM_WIN64
+	#else
+		#define __LOTUSCRT_PLATFORM_WIN32
 	#endif
 #elif defined(__linux__)
 	#define __LOTUSCRT_PLATFORM_LINUX
