@@ -18,8 +18,7 @@ run_tests = False
 def options(opt):
 	Logs.enable_colors(2)
 
-	#opt.load('msvc')
-	opt.load('clang_cl')
+	opt.load('clang_cl') # Also loads msvc
 	opt.load('clang_compilation_database')
 	opt.load('waf_unit_test')
 	opt.parser.remove_option('--alltests')
@@ -32,6 +31,13 @@ def options(opt):
 		dest='clangdb_conf',
 		default=False,
 		help="Use release flags in the clang compilation database.")
+
+	opt.add_option(
+		'--use-msvc',
+		action='store_true',
+		dest='use_msvc',
+		default=False,
+		help="Use MSVC instead of clang-cl (temporary until I add GCC support).")
 #enddef
 
 def configure(cfg):
@@ -41,8 +47,11 @@ def configure(cfg):
 	Logs.enable_colors(2)
 
 	cfg.setenv('debug')
-	#cfg.load('msvc msvc_pdb')
-	cfg.load('clang_cl')
+	if cfg.options.use_msvc:
+		cfg.load('msvc msvc_pdb')
+	else:
+		cfg.load('clang_cl')
+	#endif
 	cfg.load('clang_compilation_database')
 	cfg.env.cstlib_PATTERN = cfg.env.cxxstlib_PATTERN = 'lib%s.lib'
 	cfg.env.STLIB_ST = 'lib%s.lib'
