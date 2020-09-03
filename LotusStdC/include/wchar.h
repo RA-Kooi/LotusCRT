@@ -11,10 +11,8 @@ __LOTUSCRT_SYSTEM_HEADER
 #define __INC_WCHAR // Windows SDK compat
 #endif
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
+__LOTUSCRT_BEGIN_C_HEADER
+
 __LOTUSCRT_API size_t __LOTUSCRT_CDECL wcslen(wchar_t const *__str);
 __LOTUSCRT_MSVC_INTRINSIC(wcslen)
 
@@ -30,8 +28,7 @@ __LOTUSCRT_MSVC_INTRINSIC(wcscpy)
 		wchar_t const *__lhs,
 		wchar_t const *__rhs);
 #endif
-#ifdef __cplusplus
-}
-#endif
+
+__LOTUSCRT_END_C_HEADER
 
 #endif // __LOTUSCRT_WCHAR_H__

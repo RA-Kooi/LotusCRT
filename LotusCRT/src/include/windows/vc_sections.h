@@ -3,12 +3,7 @@
 
 #include <_lotuscrt.h>
 
-__LOTUSCRT_SYSTEM_HEADER
-
-#ifdef __cplusplus
-extern "C"
-{
-#endif
+__LOTUSCRT_BEGIN_C_HEADER
 
 __LOTUSCRT_DECLARE_SECTION(.CRT$XIA,  long, read) // First C global constructor
 __LOTUSCRT_DECLARE_SECTION(.CRT$XIAA, long, read) // CRT C global constructor
@@ -25,8 +20,6 @@ extern __LOTUSCRT_SECTION(.CRT$XIZ) _PIFV __xi_z[];
 
 int _Lotus_do_global_constructors(_PIFV *__begin, _PIFV *__end);
 
-#ifdef __cplusplus
-}
-#endif
+__LOTUSCRT_END_C_HEADER
 
 #endif // __LOTUSCRT_VC_SECTIONS_H__

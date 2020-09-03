@@ -6,16 +6,11 @@
 #include <phnt_windows.h>
 #include <phnt.h>
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
+__LOTUSCRT_BEGIN_C_HEADER
 
 ULONG NTAPI _Lotus_SEH_exe_filter(
 	PEXCEPTION_POINTERS const __exceptionPointers);
 
-#ifdef __cplusplus
-}
-#endif
+__LOTUSCRT_END_C_HEADER
 
 #endif // __LOTUSCRT_SEH_FILTERS_H__

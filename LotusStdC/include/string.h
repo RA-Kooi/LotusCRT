@@ -11,10 +11,8 @@ __LOTUSCRT_SYSTEM_HEADER
 #define __INC_STRING // Windows SDK compat
 #endif
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
+__LOTUSCRT_BEGIN_C_HEADER
+
 __LOTUSCRT_API void * __LOTUSCRT_CDECL memset(
 	void *__dest,
 	int __value,
@@ -35,8 +33,7 @@ __LOTUSCRT_MSVC_INTRINSIC(memcpy)
 
 __LOTUSCRT_API size_t __LOTUSCRT_CDECL strlen(char const *__str);
 __LOTUSCRT_MSVC_INTRINSIC(strlen)
-#ifdef __cplusplus
-}
-#endif
+
+__LOTUSCRT_END_C_HEADER
 
 #endif // __LOTUSCRT_STRING_H__

@@ -49,4 +49,12 @@ __LOTUSCRT_SYSTEM_HEADER
 	#define __LOTUSCRT_LOCAL
 #endif // _DLL || __LOTUSCRT_AS_DLL
 
+#ifdef __cplusplus
+#define __LOTUSCRT_BEGIN_C_HEADER extern "C" {
+#define __LOTUSCRT_END_C_HEADER }
+#else
+#define __LOTUSCRT_BEGIN_C_HEADER
+#define __LOTUSCRT_END_C_HEADER
+#endif
+
 #endif //__LOTUSCRT_CONFIG_H__

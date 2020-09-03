@@ -9,10 +9,8 @@ __LOTUSCRT_SYSTEM_HEADER
 	|| defined(__LOTUSCRT_COMPILER_MSVC_CLANG)
 #include_next <stddef.h>
 #elif defined(__LOTUSCRT_COMPILER_MSVC)
-#ifdef __cplusplus
-extern "C"
-{
-#endif // __cplusplus
+
+__LOTUSCRT_BEGIN_C_HEADER
 
 // wchar_t
 #ifndef __cplusplus
@@ -38,9 +36,8 @@ extern "C"
 	#define NULL ((void*)0)
 #endif
 
-#ifdef __cplusplus
-}
-#endif // __cplusplus
+__LOTUSCRT_END_C_HEADER
+
 #else
 #error "Unsupported compiler"
 #endif
