@@ -15,22 +15,26 @@ global $@__security_check_cookie@4
 
 section .text
 
+; void __fastcall __security_check_cookie(UINT_PTR __cookie)
 %ifidn __OUTPUT_FORMAT__, win32
 $@__security_check_cookie@4:
 	cmp ecx, dword [___security_cookie]
 	jnz .report_fail
-	rep ret
+	rep ret ; Avoid AMD branch prediction penalty
 %else
 __security_check_cookie:
 	cmp rcx, qword [__security_cookie]
 	jnz .report_fail
-	rol rcx, 0x10
+
+	; Make sure the upper 16 bits of the security cookie are set, otherwise fail
+	rol rcx, 16
 	test cx, 0xFFFF
 	jnz .restore_rcx
-	rep retn
+	rep retn ; Avoid AMD branch prediction penalty
+
 .restore_rcx:
-	ror rcx, 0x10
+	ror rcx, 16
 %endif
 
 .report_fail:
-	jmp __report_gsfailure
+	jmp __report_gsfailure ; Tail-call __report_gsfailure
