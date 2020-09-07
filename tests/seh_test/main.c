@@ -14,22 +14,28 @@ static int Filter(
 	   & EXCEPTION_NONCONTINUABLE_EXCEPTION))
 		return EXCEPTION_EXECUTE_HANDLER;
 
-	PCONTEXT context = __exceptionPointers->ContextRecord;
-#ifdef __LOTUSCRT_PLATFORM_WIN64
-    context->Rip++;
-#else
-    context->Eip++;
-#endif
-
-	return EXCEPTION_CONTINUE_EXECUTION;
+	return EXCEPTION_CONTINUE_SEARCH;
 }
 
 int main()
 {
 	__try
 	{
-		int *const a = (int *const)0x0BADFEED;
-		*a = 7;
+		__try
+		{
+			__try
+			{
+				int *const a = (int *const)0x0BADFEED;
+				*a = 7;
+			}
+			__finally
+			{
+				int b = 5;
+			}
+		}
+		__except(EXCEPTION_CONTINUE_SEARCH)
+		{
+		}
 	}
 	__except(Filter(_exception_code(), _exception_info()))
 	{
