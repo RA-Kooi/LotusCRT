@@ -116,10 +116,12 @@ _except_handler4_common(
 #endif
 
 	__LOTUSCRT_DISABLE_CLANG_WARNING(-Wcast-align)
+
 	PEH4_EXCEPTION_REGISTRATION_RECORD const registrationNode =
 		(PEH4_EXCEPTION_REGISTRATION_RECORD)(
 			(PCHAR)__establisherFrame
 			- FIELD_OFFSET(EH4_EXCEPTION_REGISTRATION_RECORD, subRecord));
+
 	__LOTUSCRT_RESTORE_CLANG_WARNING()
 
 	PCHAR const framePointer = (PCHAR)(registrationNode + 1);
@@ -144,6 +146,9 @@ _except_handler4_common(
 	BOOLEAN revalidate = FALSE;
 	if(IS_DISPATCHING(__exceptionRecord->ExceptionFlags))
 	{
+		// An exception is being actively dispatched. Call the exception
+		// filter(s) and start the unwinding process.
+
 		EXCEPTION_POINTERS exceptionPointers =
 			{__exceptionRecord, __contextRecord};
 		registrationNode->exceptionPointers = &exceptionPointers;
@@ -161,6 +166,8 @@ _except_handler4_common(
 
 			enclosingLevel = scopeTableRecord->enclosingLevel;
 
+			// Check if a filter func exists. It's possible that a filter
+			// function is missing in the case of a __try/__finally block.
 			if(filterFunc)
 			{
 				LONG const filterResult = _Lotus_SEH_call_filter_func(
@@ -169,19 +176,29 @@ _except_handler4_common(
 
 				revalidate = TRUE;
 
-				if(filterResult < 0)
+				// If the result is EXCEPTION_CONTINUE_SEARCH we will try
+				// to find the next filter that will process this exception.
+				// Otherwise we take one of the actions below.
+				if(filterResult < EXCEPTION_CONTINUE_SEARCH)
 				{
 					disposition = ExceptionContinueExecution;
 					break;
 				}
-				else if(filterResult > 0)
+				else if(filterResult > EXCEPTION_CONTINUE_SEARCH)
 				{
 					// TODO: Call C++ destructors
 
+					// First do a global unwind. We unwind all sub nodes
+					// recursively. Once there are no more subnodes, execution
+					// will continue after this call.
 					_Lotus_SEH_global_unwind(
 						&registrationNode->subRecord,
 						__exceptionRecord);
 
+					// We have no more subrecords, if this try level is not the
+					// level with the handler, we will do a local unwind (going
+					// up the __try block) and execute any __finally handlers
+					// in the process.
 					if(registrationNode->tryLevel != tryLevel)
 					{
 						_Lotus_SEH_local_unwind(
@@ -197,6 +214,8 @@ _except_handler4_common(
 
 					registrationNode->tryLevel = enclosingLevel;
 
+					// Validate the stack again, as filters and/or __finally
+					// handlers could have corrupted the stack.
 					_Lotus_validate_cookies(
 				#ifdef __LOTUSCRT_AS_DLL
 						__cookie,
@@ -204,6 +223,8 @@ _except_handler4_common(
 						scopeTable,
 						framePointer);
 
+					// All possible __finally handlers have executed, execute
+					// the handler.
 					_Lotus_SEH_transfer_to_handler(
 						scopeTableRecord->u.handlerAddress,
 						framePointer);
@@ -213,6 +234,11 @@ _except_handler4_common(
 	}
 	else
 	{
+		// An exception is being unwound, but we haven't found an appropriate
+		// handler yet. Do a local unwind, executing any __finally handlers
+		// in the process. Usually we come here if we cross a function boundary
+		// and haven't found a proper handler yet.
+
 		if(registrationNode->tryLevel != TOPMOST_TRY_LEVEL)
 		{
 			_Lotus_SEH_local_unwind(
@@ -229,6 +255,7 @@ _except_handler4_common(
 		}
 	}
 
+	// An unwind has occurred, make sure to revalidate the stack integrity.
 	if(revalidate)
 	{
 		_Lotus_validate_cookies(
@@ -242,6 +269,9 @@ _except_handler4_common(
 	return disposition;
 }
 
+// If SSE2 is used on x86, Windows doesn't give us proper exception codes.
+// The control and status register will give us the appropriate information
+// to translate the MXCSR status to an exception code.
 static DWORD _Lotus_filter_SSE2_FPE(DWORD const __exceptionCode)
 {
 	// TODO: Implement CPUID check
