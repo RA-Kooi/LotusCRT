@@ -21,10 +21,12 @@ __LOTUSCRT_BEGIN_C_HEADER
 	#endif
 #endif // __cplusplus
 
-// size_t
+// ptrdiff_t / size_t
 #ifdef __LOTUSCRT_ARCH_X86
+	typedef __int32 ptrdiff_t;
 	typedef unsigned __int32 size_t;
 #elif defined(__LOTUSCRT_ARCH_X64)
+	typedef __int64 ptrdiff_t;
 	typedef unsigned __int64 size_t;
 #else
 	#error "Unsupported MSVC platform"
