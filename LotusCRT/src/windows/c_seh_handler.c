@@ -3,6 +3,8 @@
 #include <phnt_windows.h>
 #include <phnt.h>
 
+#include "context_validation.h"
+
 // C specific SEH exception handler
 // x64 only
 // See c_seh_handler4.c for x86
@@ -43,7 +45,7 @@ EXCEPTION_DISPOSITION __C_specific_handler(
 	__LOTUSCRT_RESTORE_CLANG_WARNING()
 
 #ifdef __LOTUSCRT_PLATFORM_WIN64
-	// Validate __contextRecord
+	_Lotus_validate_context_record(__contextRecord);
 #endif
 
 	ULONG_PTR const imageBase = __dispatcherContext->ImageBase;

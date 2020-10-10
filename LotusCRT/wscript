@@ -74,6 +74,7 @@ def build(bld):
 		name='LotusCRT',
 		source=
 			[
+				'src/windows/context_validation.c',
 				'src/windows/entry_main.cpp',
 				'src/windows/entry_wmain.cpp',
 				'src/windows/vc_sections.c',

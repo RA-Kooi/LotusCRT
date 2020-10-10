@@ -10,6 +10,9 @@
 #endif
 #include <xmmintrin.h>
 
+#include "context_validation.h"
+#include "guard_support.h"
+
 static DWORD _Lotus_filter_SSE2_FPE(DWORD const __exceptionCode);
 
 typedef void (__fastcall *PCOOKIE_CHECK)(UINT_PTR);
@@ -142,7 +145,7 @@ _except_handler4_common(
 		scopeTable,
 		framePointer);
 
-	// TODO: validate context record
+	_Lotus_validate_context_record(__contextRecord);
 
 	BOOLEAN revalidate = FALSE;
 	if(IS_DISPATCHING(__exceptionRecord->ExceptionFlags))
@@ -351,7 +354,7 @@ void _Lotus_validate_cookies(
 		GSCookie ^= (UINT_PTR)(__framePointer + __scopeTable->GSCookieXOROffset);
 
 #ifdef __LOTUSCRT_AS_DLL
-		// TODO:Do guard check call on __cookieCheckFunc
+		__LOTUSCRT_GUARD_CHECK_CALL(__cookieCheckFunc);
 		(*__cookieCheckFunc)(GSCookie);
 #else
 		__security_check_cookie(GSCookie);
@@ -364,7 +367,7 @@ void _Lotus_validate_cookies(
 	EHCookie ^= (UINT_PTR)(__framePointer + __scopeTable->EHCookieXOROffset);
 
 #ifdef __LOTUSCRT_AS_DLL
-	// TODO:Do guard check call on __cookieCheckFunc
+	__LOTUSCRT_GUARD_CHECK_CALL(__cookieCheckFunc);
 	(*__cookieCheckFunc)(EHCookie);
 #else
 	__security_check_cookie(EHCookie);
