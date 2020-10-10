@@ -152,6 +152,14 @@ def configure(cfg):
 	cfg.recurse('LotusCRT')
 	cfg.recurse('LotusStdC')
 
+	if cfg.env.DEST_CPU == 'amd64':
+		cfg.env.append_value('LDFLAGS', '/MACHINE:X64')
+		cfg.env.append_value('ARFLAGS', '/MACHINE:X64')
+	else:
+		cfg.env.append_value('LDFLAGS', '/MACHINE:X86')
+		cfg.env.append_value('ARFLAGS', '/MACHINE:X86')
+	#endif
+
 	cfg.setenv('release', env=cfg.env.derive())
 	release_flags = \
 		[
