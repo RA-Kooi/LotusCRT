@@ -1,0 +1,51 @@
+#!/usr/bin/env python3
+# encoding: utf-8
+# vim: sw=4 ts=4 noexpandtab
+
+import sys, os, platform
+from waflib import Logs, Options, Utils
+
+def build(bld):
+	if (not 'CC_NAME_SECONDARY' in bld.env or bld.env.CC_NAME != 'msvc') \
+		and Utils.is_win32 and platform.release() != '10':
+		if bld.cmd == 'clangdb':
+			return
+		#endif
+
+		action = 'building'
+
+		if bld.options.all_tests:
+			action = 'running'
+		#endif
+
+		Logs.pprint(
+			'YELLOW',
+			'Skip %s Control Flow Guard test as Windows < 10 doesn\'t support controlling Control Flow Guard at runtime. Use MSVC if you need to enable these protections at runtime.'\
+				% (action))
+		return
+	#endif
+
+	test = bld.program(
+		name='guard_test',
+		source=['main.c'],
+		target='guard_test',
+		defines=[],
+		includes=['../../LotusCRT/src/include/windows'],
+		system_includes=[],
+		lib=[],
+		libpath=[],
+		stlib=[],
+		stlibpath=[],
+		rpath=[],
+		use=['LotusCRT', 'LotusStdC', 'LotusStdC.Memory', 'phnt', 'MSVC'],
+		uselib=[],
+		features=['test'],
+		export_system_includes=[],
+		export_defines=[])
+
+	test.ut_str = '%(python)s %(script)s --cmd %(cmd)s --expect 3221226505' % {
+		'python': sys.executable,
+		'script': os.path.abspath('tests/expect_fail.py'),
+		'cmd': test.target
+	}
+#enddef
