@@ -92,7 +92,8 @@ def configure(cfg):
 			#'/arch:SSE2', # Enable SSE2 codegen
 			'/permissive-', # Enable standard conformance mode
 			'/volatile:iso', # Disable volatile as atomic
-			'/wd5045' # Disable if /Qspectre
+			'/wd5045', # Disable if /Qspectre
+			'/guard:cf' # Enable control flow guard
 		]
 
 	if not ('CC_NAME_SECONDARY' in cfg.env):
@@ -147,7 +148,7 @@ def configure(cfg):
 			])
 	#endif
 
-	cfg.env.LDFLAGS = ['/DEBUG', '/INCREMENTAL:NO', '/WX']
+	cfg.env.LDFLAGS = ['/DEBUG', '/INCREMENTAL:NO', '/WX', '/GUARD:CF']
 
 	cfg.recurse('LotusCRT')
 	cfg.recurse('LotusStdC')
@@ -186,7 +187,17 @@ def configure(cfg):
 	if not 'CC_NAME_SECONDARY' in cfg.env:
 		release_flags += ['-GL']
 		debug_flags += ['-GL-']
-		cfg.env.append_value('LDFLAGS', '/LTCG')
+		cfg.env.append_value('LDFLAGS','/LTCG')
+		cfg.env.append_value('ARFLAGS', '/LTCG')
+
+		if cfg.env.DEST_CPU == 'amd64':
+			cfg.env.append_value(
+				'LDFLAGS',
+				[
+					'/INCLUDE:__guard_dispatch_icall_fptr',
+					'/INCLUDE:_load_config_used'
+				])
+		#endif
 	else:
 		release_flags += ['-Xclang', '-O3']
 	#endif

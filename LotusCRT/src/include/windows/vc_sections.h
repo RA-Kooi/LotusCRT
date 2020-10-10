@@ -9,6 +9,8 @@ __LOTUSCRT_DECLARE_SECTION(.CRT$XIA,  long, read) // First C global constructor
 __LOTUSCRT_DECLARE_SECTION(.CRT$XIAA, long, read) // CRT C global constructor
 __LOTUSCRT_DECLARE_SECTION(.CRT$XIZ,  long, read) // Last C global constructor
 
+__LOTUSCRT_DECLARE_SECTION(.00cfg, read) // Guard support table
+
 typedef void (*_PVFV)(void);
 typedef int (*_PIFV)(void);
 

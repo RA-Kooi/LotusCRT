@@ -26,6 +26,8 @@ extern EXCEPTION_DISPOSITION __C_specific_handler(
 
 #ifdef __LOTUSCRT_COMPILER_MSVC_ONLY
 __declspec(guard(ignore))
+__declspec(guard(suppress))
+// TODO: Setup supression from the process loader using NTAPI.
 #endif
 #ifdef __LOTUSCRT_COMPILER_MSVC
 #pragma comment(linker, "/GUARDSYM:__C_specific_handler,S")

@@ -40,7 +40,11 @@ def build(bld):
 
 	uselib = ['LotusCRTFlags', 'phnt', 'MSVC']
 
-	x64AsmSources = ['src/windows/gs_handler.s']
+	x64AsmSources = \
+	[
+			'src/windows/gs_handler.s',
+			'src/windows/guard_dispatch.s'
+	]
 	x86AsmSources = []
 	x64Sources = ['src/windows/c_seh_handler.c']
 	x86Sources = []
@@ -55,6 +59,7 @@ def build(bld):
 		source=
 			[
 				'src/windows/gs_check.s',
+				'src/windows/load_config.s',
 				'src/windows/nlg_support.s'
 			] + x64AsmSources + x86AsmSources)
 
@@ -72,6 +77,7 @@ def build(bld):
 				'src/windows/entry_main.cpp',
 				'src/windows/entry_wmain.cpp',
 				'src/windows/vc_sections.c',
+				'src/windows/guard_support.c',
 				'src/windows/seh_filters.c',
 				'src/_Exit.c'
 			] + x64Sources + x86Sources,

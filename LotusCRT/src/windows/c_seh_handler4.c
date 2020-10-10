@@ -92,6 +92,7 @@ _except_handler4_common(
 
 #ifdef __LOTUSCRT_COMPILER_MSVC_ONLY
 __declspec(guard(suppress))
+// TODO: Disable this from the process loader using NTAPI instead.
 #endif
 EXCEPTION_DISPOSITION
 #ifndef __LOTUSCRT_AS_DLL
