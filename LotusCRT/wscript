@@ -75,6 +75,7 @@ def build(bld):
 		source=
 			[
 				'src/windows/context_validation.c',
+				'src/windows/crt_init.c',
 				'src/windows/entry_main.cpp',
 				'src/windows/entry_wmain.cpp',
 				'src/windows/guard_support.c',

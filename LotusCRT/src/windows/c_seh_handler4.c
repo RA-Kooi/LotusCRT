@@ -12,6 +12,7 @@
 
 #include "context_validation.h"
 #include "guard_support.h"
+#include "simd_support.h"
 
 static DWORD _Lotus_filter_SSE2_FPE(DWORD const __exceptionCode);
 
@@ -278,9 +279,10 @@ _except_handler4_common(
 // to translate the MXCSR status to an exception code.
 static DWORD _Lotus_filter_SSE2_FPE(DWORD const __exceptionCode)
 {
-	// TODO: Implement CPUID check
-	//if not SSE2 available
-	// return __exceptionCode
+	// We need SSE2 to call _mm_getcsr, if we don't have SSE2, the error comes
+	// from the FPU, for which Windows gives us sensible info from the get go.
+	if(!_Lotus_cpuflag_supported(__LOTUSCRT_CPUFLAG_SSE2))
+		return __exceptionCode;
 
 	if(__exceptionCode != (DWORD)STATUS_FLOAT_MULTIPLE_FAULTS
 	   && __exceptionCode != (DWORD)STATUS_FLOAT_MULTIPLE_TRAPS)
