@@ -77,9 +77,10 @@ def build(bld):
 				'src/windows/context_validation.c',
 				'src/windows/entry_main.cpp',
 				'src/windows/entry_wmain.cpp',
-				'src/windows/vc_sections.c',
 				'src/windows/guard_support.c',
+				'src/windows/nt_helpers.c',
 				'src/windows/seh_filters.c',
+				'src/windows/vc_sections.c',
 				'src/_Exit.c'
 			] + x64Sources + x86Sources,
 		target='LotusCRT',
