@@ -89,10 +89,10 @@ def configure(cfg):
 			'/Zc:wchar_t', # Enable wchar_t as a built-in type
 			'/Zi', # Enable debug info
 			'/Zl', # Stop the compiler from inserting references to MSVCRT and oldnames
-			#'/arch:SSE2', # Enable SSE2 codegen
 			'/permissive-', # Enable standard conformance mode
 			'/volatile:iso', # Disable volatile as atomic
 			'/wd5045', # Disable if /Qspectre
+			'/wd4820', # Disable X bytes padding added after data member Y
 			'/guard:cf' # Enable control flow guard
 		]
 

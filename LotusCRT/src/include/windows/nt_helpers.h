@@ -16,6 +16,9 @@ __LOTUSCRT_BEGIN_C_HEADER
 #define _AddressOfReturnAddress()	__builtin_frame_address (0)
 #endif // __LOTUSCRT_COMPILER_GNULIKE
 
+// Protect functions from being called indirectly by CFG
+uint32_t _Lotus_protect_functions(void **const __functions, uint32_t __count);
+
 __LOTUSCRT_NORETURN void _Lotus_raise_hard_error(
 	uint32_t __errorCode,
 	bool __useStackCookie,

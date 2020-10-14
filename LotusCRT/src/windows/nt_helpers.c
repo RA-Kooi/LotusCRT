@@ -1,12 +1,49 @@
 #include "nt_helpers.h"
 
+#include <_lotuscrt.h>
+
 #include <stdint.h>
 
+#define PHNT_NO_INLINE_INIT_STRING // No strlen dependency in LotusCRT
 #include <phnt_windows.h>
 #include <phnt.h>
 
+extern IMAGE_LOAD_CONFIG_DIRECTORY _load_config_used;
 extern UINT_PTR __security_cookie;
 extern UINT_PTR __security_cookie_complement;
+
+// Win 10 1809+
+typedef struct _VM_INFORMATION_1809
+{
+	DWORD NumberOfOffsets;
+	DWORD MustBeZero;
+	PDWORD TargetsProcessed;
+	PCFG_CALL_TARGET_INFO CallTargets;
+	union _Section
+	{
+		HANDLE Section;
+		DWORD64 _data;
+	} Section;
+	ULONG64 ExpectedFileOffset;
+} VM_INFORMATION_1809, *PVM_INFORMATION_1809;
+
+// Win 10 1507 to 1803
+typedef struct _VM_INFORMATION_1507
+{
+	DWORD NumberOfOffsets;
+	DWORD MustBeZero;
+	PDWORD TargetsProcessed;
+	PCFG_CALL_TARGET_INFO CallTargets;
+} VM_INFORMATION_1507, *PVM_INFORMATION_1507;
+
+typedef struct _VM_INFORMATION
+{
+	PVOID vmInfo;
+	ULONG vmSize;
+} VM_INFORMATION, *PVM_INFORMATION;
+
+static VM_INFORMATION_1507 vmInfo1507;
+static VM_INFORMATION_1809 vmInfo1809;
 
 static EXCEPTION_RECORD hardFailRecord;
 static CONTEXT hardFailContext;
@@ -16,6 +53,131 @@ static EXCEPTION_POINTERS hardFailException =
 	&hardFailRecord,
 	&hardFailContext
 };
+
+static void get_vm_information(
+	PVM_INFORMATION vmInfo,
+	DWORD numberOfOffsets,
+	PDWORD targetsProcessed,
+	PCFG_CALL_TARGET_INFO callTargets)
+{
+	RTL_OSVERSIONINFOEXW osVer;
+	RtlGetVersion(&osVer);
+
+	if(osVer.dwBuildNumber >= 17763)
+	{
+		vmInfo->vmInfo = &vmInfo1809;
+		vmInfo->vmSize = sizeof(vmInfo1809);
+
+		vmInfo1809.Section.Section = NULL;
+		vmInfo1809.ExpectedFileOffset = 0;
+	}
+	else
+	{
+		vmInfo->vmInfo = &vmInfo1507;
+		vmInfo->vmSize = sizeof(vmInfo1507);
+	}
+
+	PVM_INFORMATION_1507 punnedInfo = (PVM_INFORMATION_1507)vmInfo->vmInfo;
+	punnedInfo->MustBeZero = 0;
+	punnedInfo->NumberOfOffsets = numberOfOffsets;
+	punnedInfo->TargetsProcessed = targetsProcessed;
+	punnedInfo->CallTargets = callTargets;
+}
+
+uint32_t _Lotus_protect_functions(void **const __functions, uint32_t __count)
+{
+	RTL_OSVERSIONINFOEXW osVer;
+	RtlGetVersion(&osVer);
+
+	// Controlling CFG at runtime is not supported on Windows 8.1 and lower,
+	// so we just lie that this function succeeded.
+	if(osVer.dwMajorVersion < 10)
+		return __count;
+
+	// CFG is disabled on this image.
+	if(_load_config_used.GuardCFFunctionTable == 0)
+		return __count;
+
+	// We need to dynamically load ZwSetInformationVirtualMemory, because this
+	// function has been introduced since Windows 10.
+	typedef NTSTATUS (NTAPI *SetInformationVirtualMemory_t)(
+		HANDLE,
+		VIRTUAL_MEMORY_INFORMATION_CLASS,
+		ULONG_PTR,
+		PMEMORY_RANGE_ENTRY,
+		PVOID,
+		ULONG);
+
+	ANSI_STRING functionName;
+	RtlInitAnsiString(&functionName, "ZwSetInformationVirtualMemory");
+
+	PLIST_ENTRY const moduleList = &NtCurrentPeb()->Ldr->InLoadOrderModuleList;
+	PLIST_ENTRY const ntDLLEntry = moduleList->Flink->Flink;
+	__LOTUSCRT_DISABLE_CLANG_WARNING(-Wcast-align)
+	HANDLE const ntDLL = ((PLDR_DATA_TABLE_ENTRY)ntDLLEntry)->DllBase;
+	__LOTUSCRT_RESTORE_CLANG_WARNING()
+
+	SetInformationVirtualMemory_t SetInformationVirtualMemory;
+	NTSTATUS status = LdrGetProcedureAddress(
+		ntDLL,
+		&functionName,
+		0,
+		(void*)&SetInformationVirtualMemory);
+
+	if(NT_ERROR(status))
+		return 0;
+
+	uint32_t protectedFuncs = 0;
+	for(uint32_t i = 0; i < __count; ++i)
+	{
+		// To avoid allocating on the heap we will have to do multiple
+		// ZwSetInformationVirtualMemory calls. At the moment of writing this,
+		// allocation isn't even implemented yet. But we don't want to allocate
+		// in here anyway, as that would open up attacks on CFG.
+
+		MEMORY_IMAGE_INFORMATION memInfo;
+		status = ZwQueryVirtualMemory(
+			NtCurrentProcess(),
+			__functions[i],
+			MemoryImageInformation,
+			&memInfo,
+			sizeof(memInfo),
+			NULL);
+
+		// Function ptr was invalid
+		if(NT_ERROR(status))
+			return protectedFuncs;
+
+		CFG_CALL_TARGET_INFO callTarget = {0};
+		// Disable this function as a valid CFG destination
+		callTarget.Flags = 0;
+		callTarget.Offset =
+			(ULONG_PTR)(__functions[i]) - (ULONG_PTR)(memInfo.ImageBase);
+
+		MEMORY_RANGE_ENTRY memRange = {0};
+		memRange.NumberOfBytes = memInfo.SizeOfImage;
+		memRange.VirtualAddress = memInfo.ImageBase;
+
+		DWORD targetsProcessed;
+		VM_INFORMATION vmInfo;
+		get_vm_information(&vmInfo, 1, &targetsProcessed, &callTarget);
+
+		status = SetInformationVirtualMemory(
+			NtCurrentProcess(),
+			VmCfgCallTargetInformation,
+			1,
+			&memRange,
+			vmInfo.vmInfo,
+			vmInfo.vmSize);
+
+		if(NT_ERROR(status))
+			return protectedFuncs;
+
+		++protectedFuncs;
+	}
+
+	return protectedFuncs;
+}
 
 __LOTUSCRT_NORETURN void _Lotus_raise_hard_error(
 	uint32_t __errorCode,

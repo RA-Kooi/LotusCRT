@@ -37,7 +37,7 @@ def build(bld):
 		stlib=[],
 		stlibpath=[],
 		rpath=[],
-		use=['LotusCRT', 'LotusStdC', 'LotusStdC.Memory', 'phnt', 'MSVC'],
+		use=['LotusCRT', 'LotusStdC', 'LotusStdC.Memory', 'MSVC'],
 		uselib=[],
 		features=['test'],
 		export_system_includes=[],
