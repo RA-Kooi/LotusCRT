@@ -183,4 +183,20 @@ __LOTUSCRT_SYSTEM_HEADER
 	#define __LOTUSCRT_RESTRICT
 #endif
 
+// __LOTUSCRT_LIKELY
+#if defined(__LOTUSCRT_COMPILER_MSVC_CLANG) \
+	|| defined(__LOTUSCRT_COMPILER_GNULIKE)
+	#define __LOTUSCRT_LIKELY(x) __builtin_expect(!!(x), 1)
+#else
+	#define __LOTUSCRT_LIKELY(x) (x)
+#endif
+
+// __LOTUSCRT_UNLIKELY
+#if defined(__LOTUSCRT_COMPILER_MSVC_CLANG) \
+	|| defined(__LOTUSCRT_COMPILER_GNULIKE)
+	#define __LOTUSCRT_UNLIKELY(x) __builtin_expect(!!(x), 0)
+#else
+	#define __LOTUSCRT_UNLIKELY(x) (x)
+#endif
+
 #endif // __LOTUSCRT_COMPILER_TRAITS_H__
