@@ -276,6 +276,7 @@ _except_handler4_common(
 // If SSE2 is used on x86, Windows doesn't give us proper exception codes.
 // The control and status register will give us the appropriate information
 // to translate the MXCSR status to an exception code.
+__LOTUSCRT_ENABLE_ARCH(sse2)
 static DWORD _Lotus_filter_SSE2_FPE(DWORD const __exceptionCode)
 {
 	// We need SSE2 to call _mm_getcsr, if we don't have SSE2, the error comes

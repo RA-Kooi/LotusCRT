@@ -103,6 +103,10 @@ def configure(cfg):
 				'/external:W0',
 				'/external:env:INCLUDE', # Stuff in the include env var should not gen warnings
 			]
+
+		if cfg.env.DEST_CPU != 'amd64':
+			flags += ['/arch:IA32']
+		#endif
 	else:
 		flags += \
 			[
@@ -114,9 +118,9 @@ def configure(cfg):
 			]
 
 		if cfg.env.DEST_CPU == 'amd64':
-			flags += ['-m64']
+			flags += ['-m64', '-march=x86-64']
 		else:
-			flags += ['-m32']
+			flags += ['-m32', '-march=pentium']
 		#endif
 	#endif
 

@@ -1,8 +1,10 @@
 #include <string.h>
 
 #ifdef __LOTUSCRT_COMPILER_MSVC
-	// Allow use of AVX intrinsics without generating AVX in the whole CRT
-	#define __AVX__
+	// Allow use of SIMD intrinsics without generating SIMD in the whole CRT
+	#ifndef __AVX__
+		#define __AVX__
+	#endif
 	#define __MM_MALLOC_H
 #endif
 #include <immintrin.h>
@@ -35,6 +37,7 @@ static void _Lotus_memset_small(void *__dest, int __value, size_t __count)
 
 #if !defined(__LOTUSCRT_COMPILER_MSVC) \
 	|| defined(__LOTUSCRT_COMPILER_MSVC_CLANG)
+__LOTUSCRT_ENABLE_ARCH(mmx)
 static void _Lotus_memset_MMX(void *__dest, int __value, size_t __count)
 {
 	unsigned char *dest = __dest;
@@ -47,6 +50,7 @@ static void _Lotus_memset_MMX(void *__dest, int __value, size_t __count)
 }
 #endif
 
+__LOTUSCRT_ENABLE_ARCH(sse2)
 static void _Lotus_memset_SSE(void *__dest, int __value, size_t __count)
 {
 	unsigned char *dest = __dest;
