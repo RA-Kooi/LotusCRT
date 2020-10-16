@@ -57,4 +57,11 @@ void _Lotus_init_simd(void)
 		return;
 
 	__Lotus_cpuflags |= __LOTUSCRT_CPUFLAG_AVX;
+
+	__cpuid(abcd, 7);
+
+	if(!(abcd[1] & (1 << 16)))
+		return;
+
+	__Lotus_cpuflags |= __LOTUSCRT_CPUFLAG_AVX512F;
 }

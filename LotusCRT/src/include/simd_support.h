@@ -8,9 +8,10 @@
 
 __LOTUSCRT_BEGIN_C_HEADER
 
-#define __LOTUSCRT_CPUFLAG_MMX  1 << 0
-#define __LOTUSCRT_CPUFLAG_SSE2 1 << 1
-#define __LOTUSCRT_CPUFLAG_AVX  1 << 2
+#define __LOTUSCRT_CPUFLAG_MMX      1 << 0
+#define __LOTUSCRT_CPUFLAG_SSE2     1 << 1
+#define __LOTUSCRT_CPUFLAG_AVX      1 << 2
+#define __LOTUSCRT_CPUFLAG_AVX512F  1 << 3
 
 bool _Lotus_cpuflag_supported(uint32_t __flags);
 
