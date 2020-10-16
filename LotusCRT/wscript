@@ -20,6 +20,16 @@ def configure(cfg):
 #enddef
 
 def build(bld):
+	x64AsmSources = []
+	x86AsmSources = []
+	if not bld.env.DEST_CPU == 'amd64':
+		x64AsmSources = []
+		x86AsmSources = ['src/windows/64bit_shift.s']
+
+	bld.objects(
+		name='LotusCRTAsm',
+		source=[] + x64AsmSources + x86AsmSources)
+
 	bld.stlib(
 		name='LotusCRT',
 		source=
@@ -48,7 +58,7 @@ def build(bld):
 		stlib=[],
 		stlibpath=[],
 		rpath=[],
-		use=[],
+		use=['LotusCRTAsm'],
 		uselib=['LotusCRTFlags', 'phnt', 'MSVC'],
 		features=[],
 		export_system_includes=['include'],
