@@ -8,8 +8,9 @@ default rel
 global __NLG_Destination
 %endif
 
-section .rodata
+section .data
 __NLG_Destination: db 0x20, 0x05, 0x93, 0x19
+	times 12 db 0
 
 %ifidn __OUTPUT_FORMAT__, win32
 	global __NLG_Notify
